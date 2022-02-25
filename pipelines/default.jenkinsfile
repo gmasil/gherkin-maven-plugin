@@ -1,0 +1,20 @@
+pipeline {
+  agent {
+    docker {
+      image "registry.gmasil.de/docker/maven-build-container"
+      args "-v /maven:/maven -e JAVA_TOOL_OPTIONS='-Duser.home=/maven'"
+    }
+  }
+  stages {
+    stage("deploy") {
+      steps {
+        sh "mvn clean deploy --no-transfer-progress"
+      }
+    }
+  }
+  post {
+    always {
+      junit testResults: '**/surefire-reports/**/*.xml', allowEmptyResults: true
+    }
+  }
+}
