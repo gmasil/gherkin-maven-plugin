@@ -49,10 +49,10 @@ public class EnforcerMojo extends AbstractMojo {
     @Parameter(property = "gherkin.enforcer.failbuild", defaultValue = "true")
     private boolean failBuild;
 
-    @Parameter(property = "gherkin.enforcer.surefiredir", defaultValue = "target/surefire-reports")
+    @Parameter(property = "gherkin.enforcer.surefiredir", defaultValue = "${basedir}/target/surefire-reports")
     private String surefireDir;
 
-    @Parameter(property = "gherkin.enforcer.gherkindir", defaultValue = "target/gherkin")
+    @Parameter(property = "gherkin.enforcer.gherkindir", defaultValue = "${basedir}/target/gherkin")
     private String gherkinDir;
 
     private ObjectMapper mapper = new ObjectMapper(new XmlFactory());
@@ -126,8 +126,12 @@ public class EnforcerMojo extends AbstractMojo {
     }
 
     private List<TestMethod> getGherkinTestMethods() {
-        List<File> gherkinReports = Arrays.asList(new File(gherkinDir).listFiles((dir, name) -> name.endsWith(".xml")));
+        File gherkinFolder = new File(gherkinDir);
         List<TestMethod> gherkinMethods = new LinkedList<>();
+        if (!gherkinFolder.exists()) {
+            return gherkinMethods;
+        }
+        List<File> gherkinReports = Arrays.asList(gherkinFolder.listFiles((dir, name) -> name.endsWith(".xml")));
         for (File gherkinFile : gherkinReports) {
             try {
                 JsonNode tree = mapper.readTree(gherkinFile);
@@ -150,9 +154,13 @@ public class EnforcerMojo extends AbstractMojo {
     }
 
     private List<TestMethod> getSurefireTestMethods() {
+        File surefireFolder = new File(surefireDir);
         List<TestMethod> methods = new LinkedList<>();
-        List<File> surefireReports = Arrays.asList(
-                new File(surefireDir).listFiles((dir, name) -> name.startsWith("TEST-") && name.endsWith(".xml")));
+        if (!surefireFolder.exists()) {
+            return methods;
+        }
+        List<File> surefireReports = Arrays
+                .asList(surefireFolder.listFiles((dir, name) -> name.startsWith("TEST-") && name.endsWith(".xml")));
         for (File surefireReport : surefireReports) {
             try {
                 JsonNode tree = mapper.readTree(surefireReport);
@@ -174,8 +182,12 @@ public class EnforcerMojo extends AbstractMojo {
     }
 
     private List<String> getMissingStorys() {
-        List<File> gherkinReports = Arrays.asList(new File(gherkinDir).listFiles((dir, name) -> name.endsWith(".xml")));
+        File gherkinFolder = new File(gherkinDir);
         List<String> missingStories = new LinkedList<>();
+        if (!gherkinFolder.exists()) {
+            return missingStories;
+        }
+        List<File> gherkinReports = Arrays.asList(gherkinFolder.listFiles((dir, name) -> name.endsWith(".xml")));
         for (File gherkinFile : gherkinReports) {
             try {
                 JsonNode tree = mapper.readTree(gherkinFile);
@@ -192,8 +204,12 @@ public class EnforcerMojo extends AbstractMojo {
     }
 
     private List<TestMethod> getMissingScenarios() {
-        List<File> gherkinReports = Arrays.asList(new File(gherkinDir).listFiles((dir, name) -> name.endsWith(".xml")));
+        File gherkinFolder = new File(gherkinDir);
         List<TestMethod> missingScenarios = new LinkedList<>();
+        if (!gherkinFolder.exists()) {
+            return missingScenarios;
+        }
+        List<File> gherkinReports = Arrays.asList(gherkinFolder.listFiles((dir, name) -> name.endsWith(".xml")));
         for (File gherkinFile : gherkinReports) {
             try {
                 JsonNode tree = mapper.readTree(gherkinFile);
