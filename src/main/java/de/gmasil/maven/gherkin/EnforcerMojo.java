@@ -172,7 +172,9 @@ public class EnforcerMojo extends AbstractMojo {
                     nodes.add(testcase);
                 }
                 nodes.forEach(node -> {
-                    methods.add(new TestMethod(node.findValue("classname").asText(), node.findValue("name").asText()));
+                    String className = node.findValue("classname").asText();
+                    String methodName = fixSurefireMethodName(node.findValue("name").asText());
+                    methods.add(new TestMethod(className, methodName));
                 });
             } catch (Exception e) {
                 throw new IllegalStateException("Error reading file: " + surefireReport.getAbsolutePath(), e);
@@ -233,6 +235,10 @@ public class EnforcerMojo extends AbstractMojo {
             }
         }
         return missingScenarios;
+    }
+
+    private String fixSurefireMethodName(String methodName) {
+        return methodName.split("\\{")[0];
     }
 
     private void log(String s) {
