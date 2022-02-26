@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Gherkin Maven Plugin. If not, see <https://www.gnu.org/licenses/>.
  */
-package de.gmasil.maven.gherkin;
+package de.gmasil.maven.gherkin.enforce;
 
 public class TestMethod implements Comparable<TestMethod> {
 

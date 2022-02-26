@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Gherkin Maven Plugin. If not, see <https://www.gnu.org/licenses/>.
  */
-package de.gmasil.maven.gherkin;
+package de.gmasil.maven.gherkin.enforce;
 
 import java.io.File;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 
 @Mojo(name = "enforce")
-public class EnforcerMojo extends AbstractMojo {
+public class EnforceMojo extends AbstractMojo {
 
     @Parameter(property = "gherkin.enforcer.story", defaultValue = "false")
     private boolean enforceStory;
@@ -57,10 +57,10 @@ public class EnforcerMojo extends AbstractMojo {
 
     private ObjectMapper mapper = new ObjectMapper(new XmlFactory());
 
-    public EnforcerMojo() {
+    public EnforceMojo() {
     }
 
-    public EnforcerMojo(boolean enforceStory, boolean enforceScenario, boolean failBuild, String surefireDir,
+    public EnforceMojo(boolean enforceStory, boolean enforceScenario, boolean failBuild, String surefireDir,
             String gherkinDir) {
         this.enforceStory = enforceStory;
         this.enforceScenario = enforceScenario;
@@ -113,7 +113,7 @@ public class EnforcerMojo extends AbstractMojo {
         }
     }
 
-    private Map<String, List<String>> getGherkinTestMethodsAsMap() {
+    private Map<String, List<String>> getGherkinTestMethodsAsMap() throws MojoExecutionException {
         Map<String, List<String>> map = new HashMap<>();
         List<TestMethod> gherkinTestMethods = getGherkinTestMethods();
         for (TestMethod method : gherkinTestMethods) {
@@ -125,7 +125,7 @@ public class EnforcerMojo extends AbstractMojo {
         return map;
     }
 
-    private List<TestMethod> getGherkinTestMethods() {
+    private List<TestMethod> getGherkinTestMethods() throws MojoExecutionException {
         File gherkinFolder = new File(gherkinDir);
         List<TestMethod> gherkinMethods = new LinkedList<>();
         if (!gherkinFolder.exists()) {
@@ -147,13 +147,13 @@ public class EnforcerMojo extends AbstractMojo {
                     gherkinMethods.add(new TestMethod(className, node.get("methodName").asText()));
                 });
             } catch (Exception e) {
-                throw new IllegalStateException("Error reading file: " + gherkinFile.getAbsolutePath(), e);
+                throw new MojoExecutionException("Error reading file: " + gherkinFile.getAbsolutePath(), e);
             }
         }
         return gherkinMethods;
     }
 
-    private List<TestMethod> getSurefireTestMethods() {
+    private List<TestMethod> getSurefireTestMethods() throws MojoExecutionException {
         File surefireFolder = new File(surefireDir);
         List<TestMethod> methods = new LinkedList<>();
         if (!surefireFolder.exists()) {
@@ -177,13 +177,13 @@ public class EnforcerMojo extends AbstractMojo {
                     methods.add(new TestMethod(className, methodName));
                 });
             } catch (Exception e) {
-                throw new IllegalStateException("Error reading file: " + surefireReport.getAbsolutePath(), e);
+                throw new MojoExecutionException("Error reading file: " + surefireReport.getAbsolutePath(), e);
             }
         }
         return methods;
     }
 
-    private List<String> getMissingStorys() {
+    private List<String> getMissingStorys() throws MojoExecutionException {
         File gherkinFolder = new File(gherkinDir);
         List<String> missingStories = new LinkedList<>();
         if (!gherkinFolder.exists()) {
@@ -199,13 +199,13 @@ public class EnforcerMojo extends AbstractMojo {
                     missingStories.add(className);
                 }
             } catch (Exception e) {
-                throw new IllegalStateException("Error reading file: " + gherkinFile.getAbsolutePath(), e);
+                throw new MojoExecutionException("Error reading file: " + gherkinFile.getAbsolutePath(), e);
             }
         }
         return missingStories;
     }
 
-    private List<TestMethod> getMissingScenarios() {
+    private List<TestMethod> getMissingScenarios() throws MojoExecutionException {
         File gherkinFolder = new File(gherkinDir);
         List<TestMethod> missingScenarios = new LinkedList<>();
         if (!gherkinFolder.exists()) {
@@ -231,7 +231,7 @@ public class EnforcerMojo extends AbstractMojo {
                     }
                 });
             } catch (Exception e) {
-                throw new IllegalStateException("Error reading file: " + gherkinFile.getAbsolutePath(), e);
+                throw new MojoExecutionException("Error reading file: " + gherkinFile.getAbsolutePath(), e);
             }
         }
         return missingScenarios;
