@@ -144,7 +144,9 @@ public class EnforceMojo extends AbstractMojo {
                     nodes.add(scenario);
                 }
                 nodes.forEach(node -> {
-                    gherkinMethods.add(new TestMethod(className, node.get("methodName").asText()));
+                    if (node.get("steps").get("step") != null) {
+                        gherkinMethods.add(new TestMethod(className, node.get("methodName").asText()));
+                    }
                 });
             } catch (Exception e) {
                 throw new MojoExecutionException("Error reading file: " + gherkinFile.getAbsolutePath(), e);

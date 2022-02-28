@@ -32,6 +32,9 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 
@@ -48,12 +51,16 @@ public class ReportMojo extends AbstractMojo {
     @Parameter(property = "gherkin.report.targetfile", defaultValue = "${basedir}/target/gherkin/gherkin-report.html")
     private String targetFile;
 
-    private ObjectMapper mapper = new ObjectMapper(new XmlFactory());
+    private ObjectMapper mapper;
 
     public ReportMojo() {
+        mapper = new ObjectMapper(new XmlFactory());
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        mapper.configOverride(List.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
     }
 
     public ReportMojo(String gherkinDir, String targetFile) {
+        this();
         this.gherkinDir = gherkinDir;
         this.targetFile = targetFile;
     }
