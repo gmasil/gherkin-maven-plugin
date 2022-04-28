@@ -178,4 +178,12 @@
             <url>https://nexus.gmasil.de/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>gmasil-releases</id>
+            <name>Gmasil Releases</name>
+            <url>https://nexus.gmasil.de/repository/maven-releases/</url>
+        </repository>
+    </repositories>
 </project>

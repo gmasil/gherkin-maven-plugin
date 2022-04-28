@@ -15,6 +15,10 @@ pipeline {
   post {
     always {
       junit testResults: '**/surefire-reports/**/*.xml', allowEmptyResults: true
+      cleanWs()
+      dir("${env.WORKSPACE}@tmp") {
+        deleteDir()
+      }
     }
   }
 }
