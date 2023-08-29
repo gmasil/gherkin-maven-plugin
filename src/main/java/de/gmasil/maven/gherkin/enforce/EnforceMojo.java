@@ -167,17 +167,19 @@ public class EnforceMojo extends AbstractMojo {
             try {
                 JsonNode tree = mapper.readTree(surefireReport);
                 JsonNode testcase = tree.get("testcase");
-                List<JsonNode> nodes = new LinkedList<>();
-                if (testcase.isArray()) {
-                    testcase.forEach(nodes::add);
-                } else {
-                    nodes.add(testcase);
+                if (testcase != null) {
+                    List<JsonNode> nodes = new LinkedList<>();
+                    if (testcase.isArray()) {
+                        testcase.forEach(nodes::add);
+                    } else {
+                        nodes.add(testcase);
+                    }
+                    nodes.forEach(node -> {
+                        String className = node.findValue("classname").asText();
+                        String methodName = fixSurefireMethodName(node.findValue("name").asText());
+                        methods.add(new TestMethod(className, methodName));
+                    });
                 }
-                nodes.forEach(node -> {
-                    String className = node.findValue("classname").asText();
-                    String methodName = fixSurefireMethodName(node.findValue("name").asText());
-                    methods.add(new TestMethod(className, methodName));
-                });
             } catch (Exception e) {
                 throw new MojoExecutionException("Error reading file: " + surefireReport.getAbsolutePath(), e);
             }
